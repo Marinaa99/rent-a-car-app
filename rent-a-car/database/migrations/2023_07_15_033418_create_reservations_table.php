@@ -11,21 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cars', function (Blueprint $table) {
+        Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->string('brand');
-            $table->string('model');
-            $table->integer('year');
-            $table->float('daily_price');
             $table->timestamps();
+            $table->date('pickup_date');
+            $table->date('return_date');
+            $table->foreignId('car_id')->constrained('cars');
+            $table->foreignId('user_id')->constrained('users');
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('cars');
+        Schema::dropIfExists('reservations');
     }
 };

@@ -7,30 +7,18 @@ use App\Models\Car;
 
 class  CarService
 {
-    public function store(array $data): Car
+    public function store($carData)
     {
-        $car = Car::create([
-            'brand' => $data['brand'],
-            'model' => $data['model'],
-            'year' => $data['year'],
-            'daily_price' => $data['daily_price'],
-
-        ]);
-        return $car;
+        return Car::query()->create($carData);
     }
 
-
-    public function update(int $carId, array $data): Car
+    public function update($carData, $carId)
     {
-        $car = Car::findOrFail($carId);
-
-        $car->update([
-            'brand' => $data['brand'],
-            'model' => $data['model'],
-            'year' => $data['year'],
-            'daily_price' => $data['daily_price'],
-        ]);
-
+        $car = Car::find($carId);
+        if (!$car) {
+            return false;
+        }
+        $car->update($carData);
         return $car;
     }
 
@@ -41,11 +29,6 @@ class  CarService
         return $car->delete();
     }
 
-
-    public function getAllCars()
-    {
-        return Car::all();
-    }
 
     public function searchCars(array $criteria)
     {
@@ -73,7 +56,6 @@ class  CarService
 
         return $query->get();
     }
-
 }
 
 

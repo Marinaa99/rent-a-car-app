@@ -27,23 +27,36 @@ class CarController extends Controller
      */
     public function index(Request $request)
     {
+        $criteria = $request->all();
+        $cars = $this->carService->searchCars($criteria);
 
+        if ($cars->isEmpty()) {
+            return response()->json(['message' => 'No cars with this search'], ResponseAlias::HTTP_NOT_FOUND);
+        }
 
-        $allCars = $this->carService->getAllCars();
-
-        return response(['data' => $allCars], 200);
+        return response()->json(['data' => $cars], ResponseAlias::HTTP_OK);
     }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreCarRequest $request)
     {
+        $imageName = $request->file('image')->getClientOriginalName();
+        $documentName = $request->file('document')->getClientOriginalName();
+        $imagePath = "storage/" . $request->file('image')->store('car-images');
+        $documentPath = "storage/" . $request->file('document')->store('car-documents');
+
         $carData = $request->validated();
+        $carData['image_name'] = $imageName;
+        $carData['document_name'] = $documentName;
+
+        $carData['image'] = $imagePath;
+        $carData['document'] = $documentPath;
+
         $car = $this->carService->store($carData);
+
         return CarResource::make($car);
     }
-
     /**
      * Display the specified resource.
      */
@@ -55,14 +68,17 @@ class CarController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCarRequest $request, int $carId)
+    public function update(UpdateCarRequest $request, $carId)
     {
         $carData = $request->validated();
-        $car = $this->carService->update($carId, $carData);
+        $car = $this->carService->update($carData, $carId);
+
+        if (!$car) {
+            return response()->json(['message' => 'Failed to update car'], 500);
+        }
 
         return CarResource::make($car);
     }
-
 
 
     /**
@@ -73,9 +89,9 @@ class CarController extends Controller
         $deleted = $this->carService->destroy($carId);
 
         if ($deleted) {
-            return response()->json(['message' => 'Car deleted successfully'], 200);
+            return response(['message' => 'Car deleted'], ResponseAlias::HTTP_OK);
         } else {
-            return response()->json(['message' => 'Failed to delete car'], 500);
+            return response(['message' => 'Failed to delete car'], ResponseAlias::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

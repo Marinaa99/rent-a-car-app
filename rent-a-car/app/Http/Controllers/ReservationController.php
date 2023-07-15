@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReservationExport;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
 use App\Http\Resources\ReservationResource;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReservationController extends Controller
 {
@@ -54,6 +56,9 @@ class ReservationController extends Controller
 
         $reservations = $this->reservationService->getAllReservations($start, $end);
 
+        if ($reservations->isEmpty()) {
+            return response(['message' => 'No reservations'], ResponseAlias::HTTP_OK);
+        }
         return response(['data' => ReservationResource::collection($reservations)], ResponseAlias::HTTP_OK);
     }
 
@@ -80,11 +85,11 @@ class ReservationController extends Controller
 
     public function exportExcel(Request $request)
     {
-        $export = $this->reservationService->exportExcel($request);
+        $criteria = $request->all();
 
-        if(!$export)
-            return response(['message' => 'No reservations with given criteria'], ResponseAlias::HTTP_BAD_REQUEST);
-        return $export;
+        $reservations = $this->reservationService->getFilteredReservations($criteria);
+
+        return Excel::download(new ReservationExport($reservations), 'reservations.xlsx');
     }
 
 }

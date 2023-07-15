@@ -26,6 +26,8 @@ class StoreCarRequest extends FormRequest
             'model' => 'required|string|max:255',
             'year' => 'required|integer|min:2005|max:' . date('Y'),
             'daily_price' => 'required|integer|min:5',
+            'image' => 'required|image|max:600',
+            'document' => 'required|file|max:600'
 
         ];
     }

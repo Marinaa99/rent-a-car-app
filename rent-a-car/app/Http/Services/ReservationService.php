@@ -83,6 +83,47 @@ class  ReservationService
 
         return $reservation;
     }
+
+    public function getFilteredReservations(array $criteria)
+    {
+        $query = Reservation::query()->with('car');
+
+        if (isset($criteria['brand'])) {
+            $query->whereHas('car', function ($carQuery) use ($criteria) {
+                $carQuery->where('brand', $criteria['brand']);
+            });
+        }
+
+        if (isset($criteria['model'])) {
+            $query->whereHas('car', function ($carQuery) use ($criteria) {
+                $carQuery->where('model', $criteria['model']);
+            });
+        }
+
+        if (isset($criteria['start_date'])) {
+            $startDate = Carbon::parse($criteria['start_date']);
+            $query->where('pickup_date', '>=', $startDate);
+        }
+
+        if (isset($criteria['end_date'])) {
+            $endDate = Carbon::parse($criteria['end_date']);
+            $query->where('return_date', '<=', $endDate);
+        }
+
+        if (isset($criteria['min_price'])) {
+            $query->whereHas('car', function ($carQuery) use ($criteria) {
+                $carQuery->where('daily_price', '>=', $criteria['min_price']);
+            });
+        }
+
+        if (isset($criteria['max_price'])) {
+            $query->whereHas('car', function ($carQuery) use ($criteria) {
+                $carQuery->where('daily_price', '<=', $criteria['max_price']);
+            });
+        }
+
+        return $query->get();
+    }
 }
 
 

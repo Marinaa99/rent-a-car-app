@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reservations', function (Blueprint $table) {
+        Schema::create('cars', function (Blueprint $table) {
             $table->id();
+            $table->string('brand');
+            $table->string('model');
+            $table->integer('year');
+            $table->float('daily_price');
+            $table->string('image');
+            $table->string('image_name');
+            $table->string('document_name');
+            $table->string('document');
             $table->timestamps();
-            $table->date('pickup_date');
-            $table->date('return_date');
-            $table->foreignId('car_id')->constrained('cars');
-            $table->foreignId('user_id')->constrained('users');
         });
     }
 
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reservations');
+        Schema::dropIfExists('cars');
     }
 };

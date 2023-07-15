@@ -18,9 +18,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/test', function (){
-    return \App\Models\User::all();
-});
 
 Route::post('/register', 'App\Http\Controllers\api\RegistrationController@register');
 Route::post('/login', 'App\Http\Controllers\api\AuthController@login');
@@ -35,22 +32,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')-> group(function (){
     Route::post('/logout', 'App\Http\Controllers\api\AuthController@logout');
-    Route::apiResource('/cars', CarController::class);
+    Route::apiResource('/cars', CarController::class)->except(['store,update,destroy']);
 
 
-    Route::get('/cars', [CarController::class, 'index']);
+    Route::middleware('admin')->group(function() {
     Route::post('/car', [CarController::class, 'store']);
     Route::put('/cars/{car}', [CarController::class, 'update']);
     Route::delete('/cars/{car}', [CarController::class, 'destroy']);
-
-
+    Route::get('/reservations/excel', [ReservationController::class, 'exportExcel']);
+    });
 
     Route::apiResource('/reservations', ReservationController::class);
-    Route::get('/reservations', [ReservationController::class, 'index']);
-    Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
-    Route::put('/reservations/{id}', [ReservationController::class, 'update']);
-
-    Route::get('/reservations/excel', [ReservationController::class, 'exportExcel']);
 
 
 });

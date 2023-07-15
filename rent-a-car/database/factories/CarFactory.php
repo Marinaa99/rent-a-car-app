@@ -30,6 +30,10 @@ class CarFactory extends Factory
             'model' => $randomModels,
             'year' => $this->faker->numberBetween(2005, date('Y')),
             'daily_price' => $this->faker->numberBetween(10, 100),
+            'image' => fake()->imageUrl(),
+            'document' =>fake()->imageUrl(),
+            'image_name' => fake()->firstName(),
+            'document_name' => fake()->firstName()
         ];
     }
 }
